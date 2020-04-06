@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 var ffmpeg = require('fluent-ffmpeg');
 
-const { User } = require("../models/User");
+const { Video } = require("../models/Video");
 
 const { auth } = require("../middleware/auth");
 
@@ -27,7 +27,7 @@ var upload = multer({ storage: storage }).single("file")
 
 
 //=================================
-//             User
+//             Video
 //=================================
 
 
@@ -38,8 +38,7 @@ router.post("/uploadfiles", (req, res) => {
             return res.json({ success: false, err })
         }
         return res.json({ success: true, filePath: res.req.file.path, fileName: res.req.file.filename })
-    })
-
+    });
 });
 
 
@@ -53,8 +52,7 @@ router.post("/thumbnail", (req, res) => {
         console.log(metadata.format.duration);
 
         fileDuration = metadata.format.duration;
-    })
-
+    });
 
     ffmpeg(req.body.filePath)
         .on('filenames', function (filenames) {
@@ -73,7 +71,16 @@ router.post("/thumbnail", (req, res) => {
             // %b input basename ( filename w/o extension )
             filename:'thumbnail-%b.png'
         });
+});
 
+router.post("/uploadVideo", (req, res) => {
+    const video = new Video(req.body);
+    video.save((err, video) => {
+        if(err) return res.status(400).json({ success: false, err });
+        return res.status(200).json({
+            success: true
+        });
+    });
 });
 
 
