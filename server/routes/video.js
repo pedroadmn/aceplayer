@@ -27,7 +27,7 @@ var upload = multer({ storage: storage }).single("file")
 
 
 //=================================
-//             Video
+//             User
 //=================================
 
 
@@ -38,7 +38,8 @@ router.post("/uploadfiles", (req, res) => {
             return res.json({ success: false, err })
         }
         return res.json({ success: true, filePath: res.req.file.path, fileName: res.req.file.filename })
-    });
+    })
+
 });
 
 
@@ -52,7 +53,8 @@ router.post("/thumbnail", (req, res) => {
         console.log(metadata.format.duration);
 
         fileDuration = metadata.format.duration;
-    });
+    })
+
 
     ffmpeg(req.body.filePath)
         .on('filenames', function (filenames) {
@@ -71,17 +73,38 @@ router.post("/thumbnail", (req, res) => {
             // %b input basename ( filename w/o extension )
             filename:'thumbnail-%b.png'
         });
+
 });
 
-router.post("/uploadVideo", (req, res) => {
-    const video = new Video(req.body);
-    video.save((err, video) => {
-        if(err) return res.status(400).json({ success: false, err });
-        return res.status(200).json({
-            success: true
-        });
-    });
+
+
+
+router.get("/getVideos", (req, res) => {
+
+    Video.find()
+        .populate('writer')
+        .exec((err, videos) => {
+            if(err) return res.status(400).send(err);
+            res.status(200).json({ success: true, videos })
+        })
+
 });
+
+
+
+router.post("/uploadVideo", (req, res) => {
+
+    const video = new Video(req.body)
+
+    video.save((err, video) => {
+        if(err) return res.status(400).json({ success: false, err })
+        return res.status(200).json({
+            success: true 
+        })
+    })
+
+});
+
 
 
 
